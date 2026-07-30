@@ -29,7 +29,7 @@ internal class D5700CPUMemoryAccess(
 
 	fun readSelectedMemory() : Byte = if (memory) ROMIO.read(address.toUShort()) else RAMIO.read(address.toUShort())
 
-	fun readROM(a : UShort) : Byte = ROMIO.read(a)
+	fun readROM(address : UShort) : Byte = ROMIO.read(address)
 
 	fun writeToScreen(address : UShort, value : Byte) = screenIO.write(address, value)
 
