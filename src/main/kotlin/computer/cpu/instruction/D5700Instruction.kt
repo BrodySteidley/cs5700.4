@@ -1,14 +1,14 @@
 package computer.cpu.instruction
 
-import computer.cpu.D5700CPURegisterAccess
+import computer.cpu.D5700CPUMemoryAccess
 
 internal abstract class D5700Instruction(
-	protected val cpuMemory : D5700CPURegisterAccess
+	protected val cpuMemory : D5700CPUMemoryAccess
 )
 {
 	companion object /* factory companion object */
 	{
-		private val instructionMap = mapOf<Int, (D5700CPURegisterAccess) -> D5700Instruction> (
+		private val instructionMap = mapOf<Int, (D5700CPUMemoryAccess) -> D5700Instruction> (
 			0x0 to ::StoreInstruction,
 			0x1 to ::AddInstruction,
 			0x2 to ::SubInstruction,
@@ -29,7 +29,7 @@ internal abstract class D5700Instruction(
 
 		/* static factory method
 		* I like D5700Instruction.perform(), rather than having it in a separate factory class */
-		fun perform(descriptor : Short, cpuMemory : D5700CPURegisterAccess)
+		fun perform(descriptor : Short, cpuMemory : D5700CPUMemoryAccess)
 		{
 			val nybble = (descriptor.toInt() shr 12) and 0xF
 			val concreteInstruction = instructionMap[nybble]!!.invoke(cpuMemory)

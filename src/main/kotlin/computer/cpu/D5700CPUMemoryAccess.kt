@@ -2,10 +2,10 @@ package computer.cpu
 
 import computer.MemoryIO
 
-/* A class to represent registers and register access inside the CPU.
+/* A class to represent registers and memory access inside the CPU.
  * it is intended to be internal to the cpu and its instructions,
  * but kotlin doesn't seem to have package level privacy */
-internal class D5700CPURegisterAccess(
+internal class D5700CPUMemoryAccess(
 	val ROMIO : MemoryIO,
 	private val RAMIO : MemoryIO,
 	private val screenIO : MemoryIO,

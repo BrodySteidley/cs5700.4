@@ -1,8 +1,8 @@
 package computer.cpu.instruction
 
-import computer.cpu.D5700CPURegisterAccess
+import computer.cpu.D5700CPUMemoryAccess
 
-internal class SkipNotEqualInstruction(cpuMemory : D5700CPURegisterAccess) : SkipEqualInstruction(cpuMemory)
+internal class SkipNotEqualInstruction(cpuMemory : D5700CPUMemoryAccess) : SkipEqualInstruction(cpuMemory)
 {
 	override fun performInstruction(parameters : Array<Int>)
 	{

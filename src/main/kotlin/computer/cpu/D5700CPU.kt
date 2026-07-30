@@ -18,7 +18,7 @@ class D5700CPU(rom : ROM, ram : D5700RAM, screen : D5700Screen, input : D5700Inp
 	private var instructionExecutorFuture : Future<*>? = null
 	private var timerExecutorFuture : Future<*>? = null
 
-	private val registers = D5700CPURegisterAccess(rom, ram, screen, input)
+	private val memory = D5700CPUMemoryAccess(rom, ram, screen, input)
 
 	fun start()
 	{
@@ -61,24 +61,24 @@ class D5700CPU(rom : ROM, ram : D5700RAM, screen : D5700Screen, input : D5700Inp
 	
 	private fun updateTimer()
 	{
-		synchronized(registers)
+		synchronized(memory)
 		{
-			if (registers.timer > 0)
-				registers.timer--
+			if (memory.timer > 0)
+				memory.timer--
 		}
 	}
 
 	private fun performCurrentInstruction()
 	{
-		synchronized(registers)
+		synchronized(memory)
 		{
-			val addr: UShort = registers.programCounter.toUShort()
-			val addr2: UShort = (registers.programCounter + 1).toUShort()
+			val addr: UShort = memory.programCounter.toUShort()
+			val addr2: UShort = (memory.programCounter + 1).toUShort()
 
 			var descriptor: Short
 
 			try {
-				descriptor = ((registers.ROMIO.read(addr).toInt() shl 8) or (registers.ROMIO.read(addr2)
+				descriptor = ((memory.ROMIO.read(addr).toInt() shl 8) or (memory.ROMIO.read(addr2)
 					.toInt() and 0xFF)).toShort()
 			} catch (e: MemoryOutOfBoundsException) {
 				halt()
@@ -86,7 +86,7 @@ class D5700CPU(rom : ROM, ram : D5700RAM, screen : D5700Screen, input : D5700Inp
 			}
 
 			try {
-				D5700Instruction.perform(descriptor, registers)
+				D5700Instruction.perform(descriptor, memory)
 			} catch (e: Exception) {
 				throw e
 			}

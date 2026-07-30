@@ -1,9 +1,9 @@
 package computer.cpu.instruction
 
-import computer.cpu.D5700CPURegisterAccess
+import computer.cpu.D5700CPUMemoryAccess
 import exception.InstructionParameterException
 
-internal open class SkipEqualInstruction(cpuMemory : D5700CPURegisterAccess) : D5700Instruction(cpuMemory)
+internal open class SkipEqualInstruction(cpuMemory : D5700CPUMemoryAccess) : D5700Instruction(cpuMemory)
 {
 	protected var skip : Boolean = false;
 	

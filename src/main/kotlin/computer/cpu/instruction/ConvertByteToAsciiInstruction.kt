@@ -1,9 +1,9 @@
 package computer.cpu.instruction
 
-import computer.cpu.D5700CPURegisterAccess
+import computer.cpu.D5700CPUMemoryAccess
 import exception.InstructionException
 
-internal class ConvertByteToAsciiInstruction(cpuMemory : D5700CPURegisterAccess) : D5700Instruction(cpuMemory)
+internal class ConvertByteToAsciiInstruction(cpuMemory : D5700CPUMemoryAccess) : D5700Instruction(cpuMemory)
 {
 	override fun splitDescriptor(descriptor : Short) : Array<Int>
 	{

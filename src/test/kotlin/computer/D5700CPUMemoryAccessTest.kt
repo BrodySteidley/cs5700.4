@@ -1,5 +1,5 @@
 package computer
-import computer.cpu.D5700CPURegisterAccess
+import computer.cpu.D5700CPUMemoryAccess
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -22,7 +22,7 @@ private class FakeMemoryIO : MemoryIO {
     }
 }
 
-class D5700CPURegisterAccessTest {
+class D5700CPUMemoryAccessTest {
 
     @Test
     fun `writeSelectedMemory writes to RAM when memory flag is false`() {
@@ -31,7 +31,7 @@ class D5700CPURegisterAccessTest {
         val screen = FakeMemoryIO()
         val input = FakeMemoryIO()
 
-        val registers = D5700CPURegisterAccess(rom, ram, screen, input)
+        val registers = D5700CPUMemoryAccess(rom, ram, screen, input)
 
         registers.memory = false
         registers.address = 42
@@ -50,7 +50,7 @@ class D5700CPURegisterAccessTest {
         val screen = FakeMemoryIO()
         val input = FakeMemoryIO()
 
-        val registers = D5700CPURegisterAccess(rom, ram, screen, input)
+        val registers = D5700CPUMemoryAccess(rom, ram, screen, input)
 
         registers.memory = true
         registers.address = 12
@@ -71,7 +71,7 @@ class D5700CPURegisterAccessTest {
 
         ram.memory[5u] = 42
 
-        val registers = D5700CPURegisterAccess(rom, ram, screen, input)
+        val registers = D5700CPUMemoryAccess(rom, ram, screen, input)
         registers.memory = false
         registers.address = 5
 
@@ -89,7 +89,7 @@ class D5700CPURegisterAccessTest {
 
         rom.memory[9u] = 123.toByte()
 
-        val registers = D5700CPURegisterAccess(rom, ram, screen, input)
+        val registers = D5700CPUMemoryAccess(rom, ram, screen, input)
         registers.memory = true
         registers.address = 9
 
@@ -100,7 +100,7 @@ class D5700CPURegisterAccessTest {
 
     @Test
     fun `writeToScreen delegates to screen device`() {
-        val registers = D5700CPURegisterAccess(
+        val registers = D5700CPUMemoryAccess(
             FakeMemoryIO(),
             FakeMemoryIO(),
             FakeMemoryIO(),
@@ -123,7 +123,7 @@ class D5700CPURegisterAccessTest {
         val input = FakeMemoryIO()
         input.memory[0u] = 0x5A.toByte()
 
-        val registers = D5700CPURegisterAccess(
+        val registers = D5700CPUMemoryAccess(
             FakeMemoryIO(),
             FakeMemoryIO(),
             FakeMemoryIO(),
@@ -136,7 +136,7 @@ class D5700CPURegisterAccessTest {
 
     @Test
     fun `registers are initialized correctly`() {
-        val registers = D5700CPURegisterAccess(
+        val registers = D5700CPUMemoryAccess(
             FakeMemoryIO(),
             FakeMemoryIO(),
             FakeMemoryIO(),
