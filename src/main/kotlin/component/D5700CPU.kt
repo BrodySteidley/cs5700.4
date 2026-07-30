@@ -1,6 +1,5 @@
 package component
 
-import exception.InstructionException
 import exception.MemoryOutOfBoundsException
 import instruction.D5700Instruction
 import java.util.concurrent.Executors

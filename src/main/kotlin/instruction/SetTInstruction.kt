@@ -18,5 +18,6 @@ class SetTInstruction(cpuMemory : D5700CPURegisters) : D5700Instruction(cpuMemor
 	{
 		cpuMemory.timer = parameters[0].toByte()
 	}
+
 }
 

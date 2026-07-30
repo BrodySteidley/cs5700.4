@@ -6,8 +6,7 @@ class DrawInstruction(cpuMemory : D5700CPURegisters) : D5700Instruction(cpuMemor
 {
 	override fun performInstruction(parameters : Array<Int>)
 	{
-
-		val addr = ((parameters[1] shl 8) or parameters[2]).toUShort()
+		val addr = (parameters[2] + parameters[1] * 8).toUShort()
 		cpuMemory.writeToScreen(addr, cpuMemory.registers[parameters[0]])
 	}
 }
