@@ -1,5 +1,5 @@
 
-import component.D5700ComputerFacade
+import computer.D5700ComputerFacade
 import java.io.File
 
 fun main() {

@@ -1,7 +1,6 @@
-import component.D5700CPURegisters
-import component.Memory
-import component.MemoryIO
-import instruction.*
+import computer.cpu.D5700CPURegisterAccess
+import computer.Memory
+import computer.cpu.instruction.D5700Instruction
 import exception.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -9,7 +8,7 @@ import org.junit.jupiter.api.Test
 private class FakeMemoryIO : Memory(ByteArray(500))
 
 private class TestInstruction(
-    cpu: D5700CPURegisters
+    cpu: D5700CPURegisterAccess
 ) : D5700Instruction(cpu) {
 
     var receivedParameters: Array<Int>? = null
@@ -25,7 +24,7 @@ private class TestInstruction(
 
 class D5700InstructionTest {
 
-    private fun cpu() = D5700CPURegisters(
+    private fun cpu() = D5700CPURegisterAccess(
         FakeMemoryIO(),
         FakeMemoryIO(),
         FakeMemoryIO(),
@@ -111,7 +110,7 @@ class D5700InstructionTest {
 
         rom.write(10u, 42)
 
-        val cpu = D5700CPURegisters(
+        val cpu = D5700CPURegisterAccess(
             rom,
             ram,
             FakeMemoryIO(),
@@ -134,7 +133,7 @@ class D5700InstructionTest {
 
         ram.write(5u, 99)
 
-        val cpu = D5700CPURegisters(
+        val cpu = D5700CPURegisterAccess(
             rom,
             ram,
             FakeMemoryIO(),
@@ -154,7 +153,7 @@ class D5700InstructionTest {
         val rom = FakeMemoryIO()
         val ram = FakeMemoryIO()
 
-        val cpu = D5700CPURegisters(
+        val cpu = D5700CPURegisterAccess(
             rom,
             ram,
             FakeMemoryIO(),
@@ -176,7 +175,7 @@ class D5700InstructionTest {
         val rom = FakeMemoryIO()
         val ram = FakeMemoryIO()
 
-        val cpu = D5700CPURegisters(
+        val cpu = D5700CPURegisterAccess(
             rom,
             ram,
             FakeMemoryIO(),
@@ -234,7 +233,7 @@ class D5700InstructionTest {
 
         input.write(0u, 0x41)
 
-        val cpu = D5700CPURegisters(
+        val cpu = D5700CPURegisterAccess(
             FakeMemoryIO(),
             FakeMemoryIO(),
             FakeMemoryIO(),
@@ -416,7 +415,7 @@ class D5700InstructionTest {
     fun `ConvertToBaseTenInstruction writes decimal digits to memory`() {
         val ram = FakeMemoryIO()
 
-        val cpu = D5700CPURegisters(
+        val cpu = D5700CPURegisterAccess(
             FakeMemoryIO(),
             ram,
             FakeMemoryIO(),
@@ -482,7 +481,7 @@ class D5700InstructionTest {
     fun `DrawInstruction writes register value to screen address`() {
         val screen = FakeMemoryIO()
 
-        val cpu = D5700CPURegisters(
+        val cpu = D5700CPURegisterAccess(
             FakeMemoryIO(),
             FakeMemoryIO(),
             screen,
