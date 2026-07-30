@@ -3,7 +3,7 @@ package computer.cpu.instruction
 import computer.cpu.D5700CPUMemoryAccess
 import exception.InstructionException
 
-internal class JumpInstruction(cpuMemory : D5700CPUMemoryAccess) : D5700Instruction(cpuMemory)
+internal class JumpInstruction(descriptor : Short, cpuMemory : D5700CPUMemoryAccess) : D5700Instruction(descriptor, cpuMemory)
 {
 	private var jumpLocation : Short = 0;
 

@@ -6,7 +6,7 @@ import computer.MemoryIO
  * it is intended to be internal to the cpu and its instructions,
  * but kotlin doesn't seem to have package level privacy */
 internal class D5700CPUMemoryAccess(
-	val ROMIO : MemoryIO,
+	private val ROMIO : MemoryIO,
 	private val RAMIO : MemoryIO,
 	private val screenIO : MemoryIO,
 	private val inputIO : MemoryIO,
@@ -28,6 +28,8 @@ internal class D5700CPUMemoryAccess(
 	}
 
 	fun readSelectedMemory() : Byte = if (memory) ROMIO.read(address.toUShort()) else RAMIO.read(address.toUShort())
+
+	fun readROM(a : UShort) : Byte = ROMIO.read(a)
 
 	fun writeToScreen(address : UShort, value : Byte) = screenIO.write(address, value)
 

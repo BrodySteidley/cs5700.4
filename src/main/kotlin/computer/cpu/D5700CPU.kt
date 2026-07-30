@@ -5,7 +5,7 @@ import computer.D5700RAM
 import computer.D5700Screen
 import computer.ROM
 import exception.MemoryOutOfBoundsException
-import computer.cpu.instruction.D5700Instruction
+import computer.cpu.instruction.D5700InstructionFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
@@ -78,7 +78,7 @@ class D5700CPU(rom : ROM, ram : D5700RAM, screen : D5700Screen, input : D5700Inp
 			var descriptor: Short
 
 			try {
-				descriptor = ((memory.ROMIO.read(addr).toInt() shl 8) or (memory.ROMIO.read(addr2)
+				descriptor = ((memory.readROM(addr).toInt() shl 8) or (memory.readROM(addr2)
 					.toInt() and 0xFF)).toShort()
 			} catch (e: MemoryOutOfBoundsException) {
 				halt()
@@ -86,7 +86,7 @@ class D5700CPU(rom : ROM, ram : D5700RAM, screen : D5700Screen, input : D5700Inp
 			}
 
 			try {
-				D5700Instruction.perform(descriptor, memory)
+				D5700InstructionFactory.performInstructionDescriptor(descriptor, memory)
 			} catch (e: Exception) {
 				throw e
 			}

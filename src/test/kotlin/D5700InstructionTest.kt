@@ -1,6 +1,7 @@
 import computer.cpu.D5700CPUMemoryAccess
 import computer.Memory
 import computer.cpu.instruction.D5700Instruction
+import computer.cpu.instruction.D5700InstructionFactory
 import exception.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -8,8 +9,8 @@ import org.junit.jupiter.api.Test
 private class FakeMemoryIO : Memory(ByteArray(500))
 
 private class TestInstruction(
-    cpu: D5700CPUMemoryAccess
-) : D5700Instruction(cpu) {
+    descriptor : Short, cpu: D5700CPUMemoryAccess
+) : D5700Instruction(descriptor, cpu) {
 
     var receivedParameters: Array<Int>? = null
 
@@ -33,7 +34,7 @@ class D5700InstructionTest {
 
     @Test
     fun `splitDescriptor extracts three parameter nybbles`() {
-        val instruction = TestInstruction(cpu())
+        val instruction = TestInstruction(0xABCD.toShort(), cpu())
 
         val params = instruction.split(0xABCD.toShort())
 
@@ -43,7 +44,7 @@ class D5700InstructionTest {
     @Test
     fun `incrementProgramCounter advances by two bytes`() {
         val cpu = cpu()
-        val instruction = TestInstruction(cpu)
+        val instruction = TestInstruction(0.toShort(), cpu)
 
         cpu.programCounter = 10
 
@@ -55,7 +56,7 @@ class D5700InstructionTest {
     @Test
     fun `incrementProgramCounter wraps like Short arithmetic`() {
         val cpu = cpu()
-        val instruction = TestInstruction(cpu)
+        val instruction = TestInstruction(0.toShort(), cpu)
 
         cpu.programCounter = Short.MAX_VALUE
 
@@ -68,12 +69,12 @@ class D5700InstructionTest {
     fun `StoreInstruction stores immediate value into register`() {
         val cpu = cpu()
 
-        D5700Instruction.perform(0x0123.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x0123.toShort(), cpu)
 
         assertEquals(0x23.toByte(), cpu.registers[1])
         assertEquals(2, cpu.programCounter)
 
-        D5700Instruction.perform(0x01FF.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x01FF.toShort(), cpu)
 
         assertEquals((-1).toByte(), cpu.registers[1])
     }
@@ -85,7 +86,7 @@ class D5700InstructionTest {
         cpu.registers[1] = 10
         cpu.registers[2] = 20
 
-        D5700Instruction.perform(0x1123, cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x1123, cpu)
 
         assertEquals(30.toByte(), cpu.registers[3])
     }
@@ -97,7 +98,7 @@ class D5700InstructionTest {
         cpu.registers[1] = 20
         cpu.registers[2] = 10
 
-        D5700Instruction.perform(0x2123.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x2123.toShort(), cpu)
 
         assertEquals(10.toByte(), cpu.registers[3])
         assertEquals(2, cpu.programCounter)
@@ -120,7 +121,7 @@ class D5700InstructionTest {
         cpu.memory = true
         cpu.address = 10
 
-        D5700Instruction.perform(0x3100.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x3100.toShort(), cpu)
 
         assertEquals(42.toByte(), cpu.registers[1])
         assertEquals(2, cpu.programCounter)
@@ -143,7 +144,7 @@ class D5700InstructionTest {
         cpu.memory = false
         cpu.address = 5
 
-        D5700Instruction.perform(0x3200.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x3200.toShort(), cpu)
 
         assertEquals(99.toByte(), cpu.registers[2])
     }
@@ -164,7 +165,7 @@ class D5700InstructionTest {
         cpu.address = 10
         cpu.registers[1] = 42
 
-        D5700Instruction.perform(0x4100.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x4100.toShort(), cpu)
 
         assertEquals(42.toByte(), ram.read(10u))
         assertEquals(2, cpu.programCounter)
@@ -186,7 +187,7 @@ class D5700InstructionTest {
         cpu.address = 5
         cpu.registers[2] = 99
 
-        D5700Instruction.perform(0x4200.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x4200.toShort(), cpu)
 
         assertEquals(99.toByte(), rom.read(5u))
     }
@@ -196,7 +197,7 @@ class D5700InstructionTest {
         val cpu = cpu()
 
         assertThrows(InstructionParameterException::class.java) {
-            D5700Instruction.perform(0x4101.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0x4101.toShort(), cpu)
         }
     }
 
@@ -204,7 +205,7 @@ class D5700InstructionTest {
     fun `JumpInstruction sets program counter to jump location`() {
         val cpu = cpu()
 
-        D5700Instruction.perform(0x5120.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x5120.toShort(), cpu)
 
         assertEquals(0x120.toShort(), cpu.programCounter)
     }
@@ -214,7 +215,7 @@ class D5700InstructionTest {
         val cpu = cpu()
 
         assertThrows(InstructionException::class.java) {
-            D5700Instruction.perform(0x5121.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0x5121.toShort(), cpu)
         }
     }
 
@@ -222,7 +223,7 @@ class D5700InstructionTest {
     fun `JumpInstruction supports maximum even address`() {
         val cpu = cpu()
 
-        D5700Instruction.perform(0x5FFE.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x5FFE.toShort(), cpu)
 
         assertEquals(0xFFE.toShort(), cpu.programCounter)
     }
@@ -240,7 +241,7 @@ class D5700InstructionTest {
             input
         )
 
-        D5700Instruction.perform(0x6100.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x6100.toShort(), cpu)
 
         assertEquals(0x41.toByte(), cpu.registers[1])
         assertEquals(2, cpu.programCounter)
@@ -251,7 +252,7 @@ class D5700InstructionTest {
         val cpu = cpu()
 
         assertThrows(InstructionParameterException::class.java) {
-            D5700Instruction.perform(0x6101.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0x6101.toShort(), cpu)
         }
     }
 
@@ -261,12 +262,12 @@ class D5700InstructionTest {
 
         cpu.memory = false
 
-        D5700Instruction.perform(0x7000.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x7000.toShort(), cpu)
 
         assertTrue(cpu.memory)
         assertEquals(2, cpu.programCounter)
 
-        D5700Instruction.perform(0x7000.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x7000.toShort(), cpu)
 
         assertFalse(cpu.memory)
         assertEquals(4, cpu.programCounter)
@@ -277,13 +278,13 @@ class D5700InstructionTest {
         val cpu = cpu()
 
         assertThrows(InstructionParameterException::class.java) {
-            D5700Instruction.perform(0x7001.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0x7001.toShort(), cpu)
         }
         assertThrows(InstructionParameterException::class.java) {
-            D5700Instruction.perform(0x7010.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0x7010.toShort(), cpu)
         }
         assertThrows(InstructionParameterException::class.java) {
-            D5700Instruction.perform(0x7100.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0x7100.toShort(), cpu)
         }
     }
 
@@ -295,7 +296,7 @@ class D5700InstructionTest {
         cpu.registers[2] = 42
         cpu.programCounter = 0
 
-        D5700Instruction.perform(0x8120.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x8120.toShort(), cpu)
 
         assertEquals(4, cpu.programCounter)
     }
@@ -308,7 +309,7 @@ class D5700InstructionTest {
         cpu.registers[2] = 43
         cpu.programCounter = 0
 
-        D5700Instruction.perform(0x8120.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x8120.toShort(), cpu)
 
         assertEquals(2, cpu.programCounter)
     }
@@ -318,7 +319,7 @@ class D5700InstructionTest {
         val cpu = cpu()
 
         assertThrows(InstructionParameterException::class.java) {
-            D5700Instruction.perform(0x8121.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0x8121.toShort(), cpu)
         }
     }
 
@@ -330,7 +331,7 @@ class D5700InstructionTest {
         cpu.registers[2] = 43
         cpu.programCounter = 0
 
-        D5700Instruction.perform(0x9120.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x9120.toShort(), cpu)
 
         assertEquals(4, cpu.programCounter)
     }
@@ -343,7 +344,7 @@ class D5700InstructionTest {
         cpu.registers[2] = 42
         cpu.programCounter = 0
 
-        D5700Instruction.perform(0x9120.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0x9120.toShort(), cpu)
 
         assertEquals(2, cpu.programCounter)
     }
@@ -353,7 +354,7 @@ class D5700InstructionTest {
         val cpu = cpu()
 
         assertThrows(InstructionParameterException::class.java) {
-            D5700Instruction.perform(0x9121.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0x9121.toShort(), cpu)
         }
     }
 
@@ -362,7 +363,7 @@ class D5700InstructionTest {
     fun `SetAInstruction sets memory address`() {
         val cpu = cpu()
 
-        D5700Instruction.perform(0xA123.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0xA123.toShort(), cpu)
 
         assertEquals(0x123.toShort(), cpu.address)
         assertEquals(2, cpu.programCounter)
@@ -372,7 +373,7 @@ class D5700InstructionTest {
     fun `SetTInstruction sets timer value`() {
         val cpu = cpu()
 
-        D5700Instruction.perform(0xB5A0.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0xB5A0.toShort(), cpu)
 
         assertEquals(0x5A.toByte(), cpu.timer)
         assertEquals(2, cpu.programCounter)
@@ -383,7 +384,7 @@ class D5700InstructionTest {
         val cpu = cpu()
 
         assertThrows(InstructionParameterException::class.java) {
-            D5700Instruction.perform(0xB5A1.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0xB5A1.toShort(), cpu)
         }
     }
 
@@ -393,7 +394,7 @@ class D5700InstructionTest {
 
         cpu.timer = 60
 
-        D5700Instruction.perform(0xC300.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0xC300.toShort(), cpu)
 
         assertEquals(60.toByte(), cpu.registers[3])
         assertEquals(2, cpu.programCounter)
@@ -404,10 +405,10 @@ class D5700InstructionTest {
         val cpu = cpu()
 
         assertThrows(InstructionParameterException::class.java) {
-            D5700Instruction.perform(0xC301.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0xC301.toShort(), cpu)
         }
         assertThrows(InstructionParameterException::class.java) {
-            D5700Instruction.perform(0xC310.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0xC310.toShort(), cpu)
         }
     }
 
@@ -426,7 +427,7 @@ class D5700InstructionTest {
         cpu.address = 10
         cpu.registers[5] = 123
 
-        D5700Instruction.perform(0xD050.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0xD050.toShort(), cpu)
 
         assertEquals(1.toByte(), ram.read(10u))
         assertEquals(2.toByte(), ram.read(11u))
@@ -441,7 +442,7 @@ class D5700InstructionTest {
         val cpu = cpu()
 
         assertThrows(InstructionParameterException::class.java) {
-            D5700Instruction.perform(0xD501.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0xD501.toShort(), cpu)
         }
     }
 
@@ -451,7 +452,7 @@ class D5700InstructionTest {
 
         cpu.registers[1] = 5
 
-        D5700Instruction.perform(0xE120.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0xE120.toShort(), cpu)
 
         assertEquals('5'.code.toByte(), cpu.registers[2])
         assertEquals(2, cpu.programCounter)
@@ -464,7 +465,7 @@ class D5700InstructionTest {
         cpu.registers[1] = 16
 
         assertThrows(InstructionException::class.java) {
-            D5700Instruction.perform(0xE120.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0xE120.toShort(), cpu)
         }
     }
 
@@ -473,7 +474,7 @@ class D5700InstructionTest {
         val cpu = cpu()
 
         assertThrows(Exception::class.java) {
-            D5700Instruction.perform(0xE121.toShort(), cpu)
+            D5700InstructionFactory.performInstructionDescriptor(0xE121.toShort(), cpu)
         }
     }
 
@@ -490,7 +491,7 @@ class D5700InstructionTest {
 
         cpu.registers[0] = 65
 
-        D5700Instruction.perform(0xF012.toShort(), cpu)
+        D5700InstructionFactory.performInstructionDescriptor(0xF012.toShort(), cpu)
 
         assertEquals(65.toByte(), screen.read(10u))
         assertEquals(2, cpu.programCounter)

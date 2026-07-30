@@ -3,7 +3,7 @@ package computer.cpu.instruction
 import computer.cpu.D5700CPUMemoryAccess
 import exception.InstructionParameterException
 
-internal class ReadInstruction(cpuMemory : D5700CPUMemoryAccess) : D5700Instruction(cpuMemory)
+internal class ReadInstruction(descriptor : Short, cpuMemory : D5700CPUMemoryAccess) : D5700Instruction(descriptor, cpuMemory)
 {
 	override fun splitDescriptor(descriptor : Short) : Array<Int>
 	{
